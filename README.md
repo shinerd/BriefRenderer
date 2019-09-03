@@ -1,6 +1,6 @@
 # BriefRenderer
 Making my first own Brief Renderer (for Study OpenGL)   
-   
+    
 
 ## Day 1 (190901)
 * Downloaded the codes from ssloy/tinyrenderer. [Link](https://github.com/ssloy/tinyrenderer)
@@ -9,7 +9,7 @@ Making my first own Brief Renderer (for Study OpenGL)
     
 ### GNU make
 
-I even didn't know how to make output with these codes.
+I didn't even know how to make output with these codes.
 I googled tga output, makefiles, xcode and finally figured out how day works.
 
 #### 1. G++ is a compiler for C++ language.
@@ -66,7 +66,7 @@ I followed the lecture of ssloy, but before read his code, I wrote my own code.
 Line is a set of dots. So I tried to make dots between the points.
 ![dots](https://ifh.cc/g/UUNK7.jpg)
     
-```
+```cpp
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     for(float f=0.; f<1.; f+=0.1)
     {
@@ -84,7 +84,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 
 Then I figured out that I already know the number of pixels. That means I can get the number of dots between the points.    
 This is the code in the lecture:
-```
+```cpp
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) { 
     for (int x=x0; x<=x1; x++) { 
         float t = (x-x0)/(float)(x1-x0); 
@@ -103,8 +103,9 @@ I thought it might have some problems.
 ![output2](https://ifh.cc/g/tOU2G.png) : image from ssloy's wiki
 
     
+![sudo1](https://ifh.cc/g/8SKuD.jpg)
 *std:: swap* and *std::abs* is in the *<cmath>*
-```
+```cpp
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     bool steep = false;
     
