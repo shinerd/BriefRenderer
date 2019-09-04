@@ -7,12 +7,11 @@ Making my first own Brief Renderer (for Study OpenGL)
 * Downloaded the codes from ssloy/tinyrenderer. [Link](https://github.com/ssloy/tinyrenderer)
 * Figured out how to run the codes with GNU make.
 <br>
-<br>
 
 ### GNU make
 <br>
 I didn't even know how to make output with these codes.
-I googled tga output, makefiles, xcode and finally figured out how day works.
+I googled tga output, makefiles, xcode and finally figured out how they work.
 <br>
 <br>
 
@@ -60,7 +59,6 @@ I had to edit *Makefile*. It requires real tab instead of 4 white spaces. I edit
 <br>
 ## Day 2 (190902)
 * Bresenham’s Line Drawing Algorithm
-<br>
 <br>
 
 ### Line Drawing
@@ -171,7 +169,6 @@ Compared to the output of number 1, the white line is transpoesed.
 
 ## Day 3 (190903)
 * Optimized the code by removing unnecessary calling and copies.
-<br>
 <br>
 
 ### Optimization
