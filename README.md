@@ -43,7 +43,7 @@ Then the output is created.
 ![output](https://ifh.cc/g/6ugvl.jpg)
 <br>
 <br>
-#### 4. Errors that I met today.
+#### 4. Errors that I've met today.
 `
 No targets specified and no makefile found. Stop.
 `  
@@ -150,7 +150,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 ![output3](https://ifh.cc/g/uuL9x.jpg)
 <br>
 <br>
-#### 3. Problems that I met today.
+#### 3. Problems that I've met today.
 `-`  
 It built successfully, but the output had no line(dots).
 ![nolinecode](https://ifh.cc/g/LBp8f.jpg)
@@ -159,6 +159,7 @@ It built successfully, but the output had no line(dots).
 <br>
 I had to call TGAImage by reference, so that it can remain the set of the function.
 <br>
+
 `-`  
 I had not thought about de-transpose after I transpoesd x and y.
 In the lecture, the code has a steep as a flag.
