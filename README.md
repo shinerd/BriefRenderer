@@ -167,7 +167,9 @@ Before I fixed:
 ![nosteepcode](https://ifh.cc/g/nSCND.jpg)
 ![nosteepoutput](https://ifh.cc/g/fqTG9.jpg)
 Compared to the output of number 1, the white line is transpoesed.
-
+<br>
+<br>
+<br>
 ## Day 3 (190903)
 * Optimized the code by removing unnecessary calling and copies.
 <br>
@@ -280,3 +282,60 @@ time   seconds   seconds    calls  ms/call  ms/call  name
 
 ![optmz4](https://ifh.cc/g/VIBG9.jpg)
 It works really fast now.
+<br>
+<br>
+<br>
+## Day 4 (190907)
+* Completed the wireframe rendering
+<br>
+
+### Wireframe Rendering
+<br>
+
+#### 1. I copied the code.
+I copied the code below without copy-and-paste, I typed it.
+'*main.cpp*'
+I copied the code and object below with copy-and-paste.
+'*geometry.h*', '*model.h*', '*model.cpp*', './obj'
+[Link](https://github.com/ssloy/tinyrenderer/tree/f6fecb7ad493264ecd15e230411bfb1cca539a12)
+
+#### 2. I guessed how this code works.
+1) *model.h* and *model.h* would contain the class to make objects, models.
+2) *main.cpp* draws line using the function I've made, as many as the object (model) needs.
+
+#### 3. Rendering Result
+![wireframe](https://ifh.cc/g/dkWBN.jpg)
+
+#### 4. Problems I've met today
+`called object type 'int' is not a function or function pointer`
+`'tgaimage.h' file not found`
+I just made some mistakes while I was typing the code.
+<br>
+`-`
+My first output was a little weird.
+![myoutput](https://ifh.cc/g/M4yYu.jpg)
+<br>
+The left one is mine, and the right one is the origin.
+
+So I found the difference between my code and the code of the lecture.
+![mycode](https://ifh.cc/g/jD6vy.jpg)
+<br>
+It was because the order I swapping x with y, and 0 with 1.
+![mysudo](https://ifh.cc/g/T6dPV.jpg)
+<bt>
+Of course, when I set the color, it transposed the x and y. But before it, when I set the x and y, I need to make sure that they are set in order left-to-right.
+So I switched the *if* loops and put *std::abs* to *(x1-x0)* too.
+```cpp
+if (std::abs(x1-x0) < std::abs(y1-y0))
+{
+    std::swap(x0, y0);
+    std::swap(x1, y1);
+    steep = true;
+}
+
+if (x0 > x1)
+{
+    std::swap(x0, x1);
+    std::swap(y0, y1);
+}
+```
