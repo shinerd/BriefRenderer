@@ -287,6 +287,7 @@ It works really fast now.
 <br>
 ## Day 4 (190907)
 * Completed the wireframe rendering
+* Reversed the code
 <br>
 
 ### Wireframe Rendering
@@ -300,17 +301,19 @@ I copied the code and object below with copy-and-paste.
 [Link](https://github.com/ssloy/tinyrenderer/tree/f6fecb7ad493264ecd15e230411bfb1cca539a12)
 
 #### 2. I guessed how this code works.
-1) *model.h* and *model.h* would contain the class to make objects, models.
+1) *model.h* and *model.cpp* would contain the class to make objects, models.
 2) *main.cpp* draws line using the function I've made, as many as the object (model) needs.
 
 #### 3. Rendering Result
 ![wireframe](https://ifh.cc/g/dkWBN.jpg)
 
 #### 4. Problems I've met today
-`called object type 'int' is not a function or function pointer`
-`'tgaimage.h' file not found`
+`called object type 'int' is not a function or function pointer`    
+`'tgaimage.h' file not found`    
 I just made some mistakes while I was typing the code.
 <br>
+<br>
+
 `-`
 My first output was a little weird.
 ![myoutput](https://ifh.cc/g/M4yYu.jpg)
@@ -339,3 +342,68 @@ if (x0 > x1)
     std::swap(y0, y1);
 }
 ```
+<br>
+<br>
+<br>
+
+## Day 5 (190909)
+* Reversed the code
+<br>
+
+### Wireframe Rendering (Reversing)
+<br>
+
+#### 1. I analyzed *Model* class.
+I didn't get the exact meaning, but I could guess most of it.
+
+#### 2. I analyzed *main.cpp* .
+Now I can understand furthermore.
+
+#### 3. Questions I've had today
+```cpp
+// model.h
+class Model {
+private:
+    std::vector<Vec3f> verts_;
+    std::vector<std::vector<int> > faces_;
+public:
+    ...
+};
+```
+```cpp
+// model.cpp
+Model::Model(const char *filename) : verts_(), faces_() {  // consturctor of Model
+    ...
+    char trash;
+    if (...) {
+        ...
+        verts_.push_back(v);
+    } else if (...) {
+        ...
+        faces_.push_back(f);
+    }
+}
+```
+I'm guessing verts_ and faces_ is vector variables, and to use them in a class, I have to inherit the constructors of the vectors. But I still don't know why.
+
+```cpp
+char trash; 
+if (!line.compare(0, 2, "v ")) { 
+    iss >> trash;
+    Vec3f v;
+    for (int i=0;i<3;i++) iss >> v.raw[i];
+    verts_.push_back(v);
+} else if (!line.compare(0, 2, "f ")) { 
+    std::vector<int> f;
+    int itrash, idx;
+    iss >> trash;
+    while (iss >> idx >> trash >> itrash >> trash >> itrash) {
+        idx--; // in wavefront obj all indices start at 1, not zero
+        f.push_back(idx);
+    }
+    faces_.push_back(f);
+}
+```
+I'm guessing that it means if it is v, push to verts_, else if it is f, push to faces_. I wish I could open the object file as code so that I can figure out what it means.
+<br>
+Other comments are in the code.

@@ -60,20 +60,20 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     
 }
 
-int main(int argc, char** argv) {
-    if (argc==2) {
-        model = new Model(argv[1]);
+int main(int argc, char** argv) {                   // Q: How can main() have parameters?
+    if (argc==2) {                                  // the first parameter is used
+        model = new Model(argv[1]);                 // the second parameter is used
     } else {
-        model = new Model("obj/african_head.obj");
+        model = new Model("obj/african_head.obj");  // model.cpp - line 8: Model::Model(const char *filename) : ...
     }
     
     TGAImage image(width, height, TGAImage::RGB);
     
     for (int i=0; i<model->nfaces(); i++) {
-        std::vector<int> face = model->face(i);
+        std::vector<int> face = model->face(i);     // face = faces_[i]
         for (int j=0; j<3; j++) {
-            Vec3f v0 = model->vert(face[j]);
-            Vec3f v1 = model->vert(face[(j+1)%3]);
+            Vec3f v0 = model->vert(face[j]);        // v0 = verts_[faces_[j]]
+            Vec3f v1 = model->vert(face[(j+1)%3]);  // v1 = verts_[faces_[(j+1)%3]);
             int x0 = (v0.x + 1.) * width / 2.;
             int y0 = (v0.y + 1.) * height / 2.;
             int x1 = (v1.x + 1.) * width / 2.;
@@ -85,6 +85,6 @@ int main(int argc, char** argv) {
     image.flip_vertically();
     image.write_tga_file("output.tga");
     
-    delete model;
+    delete model;                                   // delete the object
     return 0;
 }
