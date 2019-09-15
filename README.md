@@ -572,13 +572,16 @@ if (v1.x != v0.x){
     y = (v1.y - v0.y) / (v1.x - v0.x) * (x - v0.x) + v0.y;
 }
 ```
+<br>
 
-`error: use of undeclared identifier 'x'`
+`error: use of undeclared identifier 'x'`    
 I should've declared the variable x out of the conditional statement.
+<br>
 
-`error: invalid operands to binary expression ('std::__1::ostream' (aka 'basic_ostream<char>') and 'eSideType')`
-I should've cast the type to integer so that enum type can be printed as a number.
+`error: invalid operands to binary expression ('std::__1::ostream' (aka 'basic_ostream<char>') and 'eSideType')`    
+I should've cast the type to integer so that enum type can be printed as a number.    
 `std::cout << static_cast<int>(side) << std::endl;`
+<br>
 
 ```cpp
 void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
@@ -631,7 +634,7 @@ int boundary_x(Vec2i v0, Vec2i v1, int y){
 So to figure it out, I put some *cout*s more. This time, it tells the value of the x before casting to integer.
 ![checkingx](https://ifh.cc/g/4AQqE.jpg)
 10, 150, and something I don't know. They are all wrong.
-![]()
+![coords](https://ifh.cc/g/SEjVh.jpg)
 
 ```cpp
 int boundary_x(Vec2i v0, Vec2i v1, int y){
