@@ -411,11 +411,11 @@ Other comments are in the code.
 <br>
 <br>
 
-## Day 5 (190909)
-* Filled triangles
+## Day 6 (190914)
+* Distinguished the side of the triangles.
 <br>
 
-### Filling Triangles
+### Filling Triangles (1)
 <br>
 
 #### 1. I got the code for making three empty triangles.
@@ -479,3 +479,227 @@ int main(int argc, char** argv) {
 ```
 The output of the code is like below.
 ![emptytriangles](https://ifh.cc/g/9pDBr.jpg)
+
+#### 2. I read some conditions before writing my own code.
+There were a few conditions to make code of filled triangles.
+* It should be (surprise!) simple and fast.
+* It should be symmetrical: the picture should not depend on the order of vertices passed to the drawing function.
+* If two triangles have two common vertices, there should be no holes between them because of rasterization rounding.
+* We could add more requirements, but let’s do with these ones. Traditionally a line sweeping is used:
+1) Sort vertices of the triangle by their y-coordinates;
+2) Rasterize simultaneously the left and the right sides of the triangle;
+3) Draw a horizontal line segment between the left and the right boundary points.
+
+#### 3. I set the boundary A and B.
+The lecture says,
+*How do I draw a triangle? Once again, if you have a better method, I’d be glad to adopt it. Let us assume that we have three points of the triangle: t0, t1, t2, they are sorted in ascending order by the y-coordinate. Then, the boundary A is between t0 and t2, boundary B is between t0 and t1, and then between t1 and t2.*
+
+To make the same output with the lecture's, I wrote the code.
+```cpp
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
+    if (t0.y > t1.y){
+        std::swap(t0.x, t1.x);
+        std::swap(t0.y, t1.y);
+    }
+    if (t0.y > t2.y){
+        std::swap(t0.x, t2.x);
+        std::swap(t0.y, t2.y);
+    }
+    if (t1.y > t2.y){
+        std::swap(t1.x, t2.x);
+        std::swap(t1.y, t2.y);
+    }
+
+    line(t0, t1, image, green);
+    line(t1, t2, image, green);
+    line(t2, t0, image, red);
+}
+```
+The output of the code is like below.
+![boundaries](https://ifh.cc/g/CrpFu.jpg)
+I set the color of the boundary A as red, and B as green.
+![boundariesnote](https://ifh.cc/g/h9lPw.jpg)
+![boundariesnote2](https://ifh.cc/g/wI3rV.jpg)
+
+#### 4. Distinguished the side of B.
+Then as the second condition in the number 2. above, I need to make sure whether the triangle (the boundary B) is on the left side of the boundary A, or the right. To figure it out, I add code comparing x-coods of t1 and the boundary A.
+```cpp
+enum class eSideType
+{
+    Left,   // 0
+    Right,  // 1
+};
+
+// ...
+
+Vec2i abp = Vec2i(boundary_x(t0, t2, t1.y), t1.y);  // (the boundary) A boundary point
+eSideType side;
+if (t1.x < abp.x) {
+    side = eSideType::Left;
+} else {
+    side = eSideType::Right;
+}
+```
+![decidingsides](https://ifh.cc/g/mFyA3.jpg)
+
+And for this, I made two functions which returns x coord when you give y, and returns y coord when you give x.
+```cpp
+int boundary_x(Vec2i v0, Vec2i v1, int y){
+    float x;
+    if (v1.y != v0.y){
+        x = static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;
+    }
+    return static_cast<int>(x);
+}
+```
+```cpp
+int boundary_y(Vec2i v0, Vec2i v1, int x){
+    float y;
+    if (v1.x != v0.x){
+        y = static_cast<float>(v1.y - v0.y) / (v1.x - v0.x) * (x - v0.x) + v0.y;
+    }
+    return static_cast<int>(y);
+}
+```
+I need to pass two points on the line and the y value to *boundary_x*, and the function returns the x value of the y value on the line created by the two points.
+If I pass the x value to *boundary_y*, it returns the y value.
+
+#### 5. Errors that I've met today.
+`Floating point exception: 8`
+I should've made the exception for devision by 0. So I put the conditional statement.
+```cpp
+if (v1.x != v0.x){
+    y = (v1.y - v0.y) / (v1.x - v0.x) * (x - v0.x) + v0.y;
+}
+```
+
+`error: use of undeclared identifier 'x'`
+I should've declared the variable x out of the conditional statement.
+
+`error: invalid operands to binary expression ('std::__1::ostream' (aka 'basic_ostream<char>') and 'eSideType')`
+I should've cast the type to integer so that enum type can be printed as a number.
+`std::cout << static_cast<int>(side) << std::endl;`
+
+```cpp
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
+    if (t0.y > t1.y){
+        std::swap(t0.x, t1.x);
+        std::swap(t0.y, t1.y);
+    }
+    if (t0.y > t2.y){
+        std::swap(t0.x, t2.x);
+        std::swap(t0.y, t2.y);
+    }
+    if (t1.y > t2.y){
+        std::swap(t1.x, t2.x);
+        std::swap(t1.y, t2.y);
+    }
+
+    Vec2i abp = Vec2i(boundary_x(t0, t2, t1.y), t1.y);  // (the boundary) A boundary point
+
+    eSideType side;
+
+    std::cout << t1.x << " " << abp.x << std::endl;  // *
+
+    if (t1.x < abp.x) {
+        side = eSideType::Left;
+    } else {
+        side = eSideType::Right;
+    }
+
+    line(t0, t1, image, green);
+    line(t1, t2, image, green);
+    line(t2, t0, image, red);
+
+    std::cout << static_cast<int>(side) << std::endl;  // *
+}
+```
+I put the *cout* for checking the side. But uh-oh.
+![checkingside](https://ifh.cc/g/pncs7.jpg)
+They were supposed to be 1 1 0, but all of them are 1.
+
+```cpp
+int boundary_x(Vec2i v0, Vec2i v1, int y){
+    float x;
+    if (v1.y != v0.x){
+        x = (v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;
+    }
+    std::cout << x << std::endl;  // *
+    return static_cast<int>(x);
+}
+```
+So to figure it out, I put some *cout*s more. This time, it tells the value of the x before casting to integer.
+![checkingx](https://ifh.cc/g/4AQqE.jpg)
+10, 150, and something I don't know. They are all wrong.
+![]()
+
+```cpp
+int boundary_x(Vec2i v0, Vec2i v1, int y){
+    float x;
+    std::cout << v1.x - v0.x << " " << v1.y - v0.y << " " << y - v0.y << " " << v0.x << std::endl;  // *
+    if (v1.y != v0.x){
+        x = (v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;
+    }
+    std::cout << x << std::endl;
+    return static_cast<int>(x);
+}
+```
+I tried to check all terms which decide the value of x.
+![checkingterms](https://ifh.cc/g/SGP89.jpg)
+They are all right. But I noticed that I should cast one of the terms so that the result can have float value.
+
+`x = static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;`
+Like this.
+![castxasfloat](https://ifh.cc/g/oGM4y.jpg)
+Then the results are changed. But still, the third x has a garbage value.
+
+```cpp
+int boundary_x(Vec2i v0, Vec2i v1, int y){
+    float x;
+    std::cout << v1.x - v0.x << " " << v1.y - v0.y << " " << y - v0.y << " " << v0.x << std::endl;
+    std::cout << static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x << std::endl;  // *
+    if (v1.y != v0.x){
+    x = static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;
+    }
+    std::cout << x << std::endl;
+    return static_cast<int>(x);
+    }
+}
+```
+I checked how the result is changing by adding terms one by one.
+![chekingbyaddingterms](https://ifh.cc/g/SkZbQ.jpg)
+Then, something weird happened. The value at the outside of *if* statement is printed right, but the inside is not.
+
+```cpp
+int boundary_x(Vec2i v0, Vec2i v1, int y){
+    float x;
+    std::cout << v1.x - v0.x << " " << v1.y - v0.y << " " << y - v0.y << " " << v0.x << std::endl;
+    std::cout << static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x << std::endl;
+    if (v1.y != v0.x){
+        x = static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;
+        std::cout << x << std::endl;  // *
+    }
+    std::cout << x << std::endl;
+    return static_cast<int>(x);
+}
+```
+I put one more *cout* inside of the *if* statement
+![checkinginsideif](https://ifh.cc/g/NH2aB.jpg)
+It wasn't printed. For the third triangle, the *if* statement doesn't run. Then I checked the condition. There was a typo.
+
+```cpp
+int boundary_x(Vec2i v0, Vec2i v1, int y){
+    float x;
+    std::cout << v1.x - v0.x << " " << v1.y - v0.y << " " << y - v0.y << " " << v0.x << std::endl;
+    std::cout << static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x << std::endl;
+    if (v1.y != v0.y){  // *
+        x = static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;
+        std::cout << x << std::endl;
+    }
+    std::cout << x << std::endl;
+    return static_cast<int>(x);
+}
+```
+Fortunately, the third v1.y and v0.x are the same. If they are not, I couldn't find the typo.
+![fixingtov0y](https://ifh.cc/g/U3zNa.jpg)
+Now the side of the third triangle is 0 (left).

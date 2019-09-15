@@ -6,6 +6,7 @@
 //  Copyright © 2019 Shinernd. All rights reserved.
 //
 
+#include <iostream> // for logging
 #include <vector>
 #include <cmath>
 #include "tgaimage.hpp"
@@ -16,6 +17,32 @@ const TGAColor red   = TGAColor(255, 0,   0,   255);
 const TGAColor green = TGAColor(0,   255, 0,   255);
 const int width  = 200;
 const int height = 200;
+
+enum class eSideType
+{
+    Left,   // 0
+    Right,  // 1
+};
+
+int boundary_x(Vec2i v0, Vec2i v1, int y){
+    float x;
+//    std::cout << v1.x - v0.x << " " << v1.y - v0.y << " " << y - v0.y << " " << v0.x << std::endl;
+//    std::cout << static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x << std::endl;
+    if (v1.y != v0.y){  // ...
+        x = static_cast<float>(v1.x - v0.x) / (v1.y - v0.y) * (y - v0.y) + v0.x;
+//        std::cout << x << std::endl;
+    }
+//    std::cout << x << std::endl;
+    return static_cast<int>(x);
+}
+
+int boundary_y(Vec2i v0, Vec2i v1, int x){
+    float y;
+    if (v1.x != v0.x){
+        y = static_cast<float>(v1.y - v0.y) / (v1.x - v0.x) * (x - v0.x) + v0.y;
+    }
+    return static_cast<int>(y);
+}
 
 void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
     bool steep = false;
@@ -39,10 +66,37 @@ void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
     }
 }
 
-void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
-    line(t0, t1, image, color);
-    line(t1, t2, image, color);
-    line(t2, t0, image, color);
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
+    if (t0.y > t1.y){
+        std::swap(t0.x, t1.x);
+        std::swap(t0.y, t1.y);
+    }
+    if (t0.y > t2.y){
+        std::swap(t0.x, t2.x);
+        std::swap(t0.y, t2.y);
+    }
+    if (t1.y > t2.y){
+        std::swap(t1.x, t2.x);
+        std::swap(t1.y, t2.y);
+    }
+    
+    Vec2i abp = Vec2i(boundary_x(t0, t2, t1.y), t1.y);  // (the boundary) A boundary point
+    
+    eSideType side;
+    
+//    std::cout << t1.x << " " << abp.x << std::endl;
+    
+    if (t1.x < abp.x) {
+        side = eSideType::Left;
+    } else {
+        side = eSideType::Right;
+    }
+    
+    line(t0, t1, image, green);
+    line(t1, t2, image, green);
+    line(t2, t0, image, red);
+    
+//    std::cout << static_cast<int>(side) << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -52,9 +106,9 @@ int main(int argc, char** argv) {
     Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
     Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
     
-    triangle(t0[0], t0[1], t0[2], image, red);
-    triangle(t1[0], t1[1], t1[2], image, white);
-    triangle(t2[0], t2[1], t2[2], image, green);
+    triangle(t0[0], t0[1], t0[2], image);
+    triangle(t1[0], t1[1], t1[2], image);
+    triangle(t2[0], t2[1], t2[2], image);
     
     
     image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
