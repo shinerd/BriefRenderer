@@ -738,7 +738,7 @@ for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
 ![filledtriangles](https://ifh.cc/g/HTRvy.jpg)
 
 #### 2. Problems that I've met today.
-`-`
+`-`    
 For the first, when I runned this code, it made non-fully-filled triangles.
 ```cpp
 void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
@@ -942,7 +942,7 @@ if (p0.x != p1.x) {
     }
 }
 ```
-![samexcoords](https://ifh.cc/g/6VxEB.jpg)
-After fixing it, the vertecies appeared.
+![samexcoords](https://ifh.cc/g/6VxEB.jpg)    
+After fixing it, the vertecies appeared.    
 ![withvertecies](https://ifh.cc/g/PdrmI.png)
 
