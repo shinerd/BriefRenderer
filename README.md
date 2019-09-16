@@ -706,3 +706,243 @@ int boundary_x(Vec2i v0, Vec2i v1, int y){
 Fortunately, the third v1.y and v0.x are the same. If they are not, I couldn't find the typo.
 ![fixingtov0y](https://ifh.cc/g/U3zNa.jpg)
 Now the side of the third triangle is 0 (left).
+<br>
+<br>
+<br>
+
+## Day 7 (190916)
+* Filled the triangles.
+<br>
+
+### Filling Triangles (2)
+<br>
+
+#### 1. The First Attempt
+![abpbbpnote](https://ifh.cc/g/sPVgA.jpg)
+Suppose I have a point abp that moves on line t0-t2. Suppose there is a point bbp that moves on boundary B, that is, on line segments t0t1 and t1t2. If bbp has the same y value as abp, I can move the y coordinate of abp from t0 to t2 and draw a line with the corresponding bbp to fill the triangle.
+```cpp
+Vec2i bbp;
+
+for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
+    abp.x = boundary_x(t0, t2, abp.y);
+    bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
+    line(abp, bbp, image, white);
+}
+
+for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
+    abp.x = boundary_x(t0, t2, abp.y);
+    bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
+    line(abp, bbp, image, white);
+}
+```
+![filledtriangles](https://ifh.cc/g/HTRvy.jpg)
+
+#### 2. Problems that I've met today.
+`-`
+For the first, when I runned this code, it made non-fully-filled triangles.
+```cpp
+void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
+    bool steep = false;
+    if (std::abs(p0.x-p1.x)<std::abs(p0.y-p1.y)) {
+        std::swap(p0.x, p0.y);
+        std::swap(p1.x, p1.y);
+        steep = true;
+    }
+    if (p0.x>p1.x) {
+        std::swap(p0, p1);
+    }
+
+    for (int x=p0.x; x<=p1.x; x++) {
+        float t = (x-p0.x)/(float)(p1.x-p0.x);
+        int y = p0.y*(1.-t) + p1.y*t;
+        if (steep) {
+            image.set(y, x, color);
+        } else {
+            image.set(x, y, color);
+        }
+    }
+}
+
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
+    if (t0.y > t1.y) {
+        std::swap(t0.x, t1.x);
+        std::swap(t0.y, t1.y);
+    }
+    if (t0.y > t2.y) {
+        std::swap(t0.x, t2.x);
+        std::swap(t0.y, t2.y);
+    }
+    if (t1.y > t2.y) {
+        std::swap(t1.x, t2.x);
+        std::swap(t1.y, t2.y);
+    }
+
+    Vec2i abp = Vec2i(boundary_x(t0, t2, t1.y), t1.y);  // (the boundary) A boundary point
+
+    Vec2i bbp;
+
+    if (t1.x < abp.x) {
+    side = eSideType::Left;
+
+    for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
+        abp.x = boundary_x(t0, t2, abp.y);
+        bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
+        line(abp, bbp, image, white);
+    }
+
+    for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
+        abp.x = boundary_x(t0, t2, abp.y);
+        bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
+        line(abp, bbp, image, white);
+    }
+
+    } else {
+        side = eSideType::Right;
+
+        for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
+            line(abp, bbp, image, white);
+        }
+
+        for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
+            line(abp, bbp, image, white);
+        }
+    }
+}
+```
+Like these:
+![nonfullyfilledtriangles](https://ifh.cc/g/lfpAJ.png)
+So to find this reason, I put some *cout*s.
+
+```cpp
+    void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
+    bool steep = false;
+    if (std::abs(p0.x-p1.x)<std::abs(p0.y-p1.y)) {
+        std::swap(p0.x, p0.y);
+        std::swap(p1.x, p1.y);
+        steep = true;
+    }
+    if (p0.x>p1.x) {
+        std::swap(p0, p1);
+    }
+
+    for (int x=p0.x; x<=p1.x; x++) {
+        float t = (x-p0.x)/(float)(p1.x-p0.x);
+        int y = p0.y*(1.-t) + p1.y*t;
+        std::cout << p0.y*(1.-t) << "+" << p1.y*t << "=" << p0.y*(1.-t) + p1.y*t << std::endl;  // *
+        if (steep) {
+            image.set(y, x, color);
+            std::cout << x << " " << y << std::endl;  // *
+        } else {
+            image.set(x, y, color);
+            std::cout << x << " " << y << std::endl;  // *
+        }
+    }
+}
+
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
+    if (t0.y > t1.y) {
+        std::swap(t0.x, t1.x);
+        std::swap(t0.y, t1.y);
+    }
+    if (t0.y > t2.y) {
+        std::swap(t0.x, t2.x);
+        std::swap(t0.y, t2.y);
+    }
+    if (t1.y > t2.y) {
+        std::swap(t1.x, t2.x);
+        std::swap(t1.y, t2.y);
+    }
+
+    Vec2i abp = Vec2i(boundary_x(t0, t2, t1.y), t1.y);  // (the boundary) A boundary point
+
+    std::cout << t1.x << " " << abp.x << std::endl;  // *
+
+    Vec2i bbp;
+
+    if (t1.x < abp.x) {
+        side = eSideType::Left;
+
+        for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
+            line(abp, bbp, image, white);
+            std::cout << abp << bbp << std::endl;  // *
+        }
+
+        for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
+            line(abp, bbp, image, white);
+            std::cout << abp << bbp << std::endl;  // *
+        }
+
+    } else {
+        side = eSideType::Right;
+
+        for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
+            line(abp, bbp, image, white);
+            std::cout << abp << bbp << std::endl;  // *
+        }
+
+        for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
+            line(abp, bbp, image, white);
+            std::cout << abp << bbp << std::endl;  // *
+        }
+    }
+}
+```
+*cout* that I really need was like below.
+```cpp
+std::cout << p0.y*(1.-t) << " + " << p1.y*t << " == " << p0.y*(1.-t) + p1.y*t << std::endl;
+std::cout << y <<std::endl;
+```
+In the function *line*, while casting y to int, it was not rounding the float value. So to fix it, I had to plus *0.5* to y before cast it.
+
+```cpp
+int y = p0.y*(1.-t) + p1.y*t + 0.5;
+```
+Then it works.
+![bluntvertices](https://ifh.cc/g/wFBNm.png)
+But the vertices are blunt. I checked the logs, and found that the y value of vertices became *nan*.
+It was because the division by zero.
+```cpp
+for (int x=p0.x; x<=p1.x; x++) {
+    float t = (x-p0.x)/(float)(p1.x-p0.x);  // here
+    int y = p0.y*(1.-t) + p1.y*t + 0.5;
+    if (steep) {
+        image.set(y, x, color);
+    } else {
+        image.set(x, y, color);
+    }
+}
+```
+For the case that *p1.x* and *p0.x* are the same, I had to make an exception handling. 
+```
+if (p0.x != p1.x) {
+    for (int x=p0.x; x<=p1.x; x++) {
+        float t = (x-p0.x)/(float)(p1.x-p0.x);
+        int y = p0.y*(1.-t) + p1.y*t + 0.5;
+        if (steep) {
+            image.set(y, x, color);
+        } else {
+            image.set(x, y, color);
+        }
+    }
+} else {
+    for (int y=p0.y; y<=p1.y; y++) {
+    image.set(p0.x, y, color);
+    }
+}
+```
+![samexcoords](https://ifh.cc/g/6VxEB.jpg)
+After fixing it, the vertecies appeared.
+![withvertecies](https://ifh.cc/g/PdrmI.png)
+

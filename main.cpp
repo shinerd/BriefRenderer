@@ -33,7 +33,7 @@ int boundary_x(Vec2i v0, Vec2i v1, int y){
 //        std::cout << x << std::endl;
     }
 //    std::cout << x << std::endl;
-    return static_cast<int>(x);
+    return static_cast<int>(x + 0.5);
 }
 
 int boundary_y(Vec2i v0, Vec2i v1, int x){
@@ -41,7 +41,7 @@ int boundary_y(Vec2i v0, Vec2i v1, int x){
     if (v1.x != v0.x){
         y = static_cast<float>(v1.y - v0.y) / (v1.x - v0.x) * (x - v0.x) + v0.y;
     }
-    return static_cast<int>(y);
+    return static_cast<int>(y + 0.5);
 }
 
 void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
@@ -55,27 +55,37 @@ void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
         std::swap(p0, p1);
     }
     
-    for (int x=p0.x; x<=p1.x; x++) {
-        float t = (x-p0.x)/(float)(p1.x-p0.x);
-        int y = p0.y*(1.-t) + p1.y*t;
-        if (steep) {
-            image.set(y, x, color);
-        } else {
-            image.set(x, y, color);
+    if (p0.x != p1.x) {
+        for (int x=p0.x; x<=p1.x; x++) {
+            float t = (x-p0.x)/(float)(p1.x-p0.x);
+            int y = p0.y*(1.-t) + p1.y*t +0.5;
+//            std::cout << p0.y*(1.-t) << " + " << p1.y*t << " == " << p0.y*(1.-t) + p1.y*t << std::endl;
+//            std::cout << y <<std::endl;
+            if (steep) {
+                image.set(y, x, color);
+//                std::cout << x << " " << y << std::endl;
+            } else {
+                image.set(x, y, color);
+//                std::cout << x << " " << y << std::endl;
+            }
+        }
+    } else {
+        for (int y=p0.y; y<=p1.y; y++) {
+            image.set(p0.x, y, color);
         }
     }
 }
 
 void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
-    if (t0.y > t1.y){
+    if (t0.y > t1.y) {
         std::swap(t0.x, t1.x);
         std::swap(t0.y, t1.y);
     }
-    if (t0.y > t2.y){
+    if (t0.y > t2.y) {
         std::swap(t0.x, t2.x);
         std::swap(t0.y, t2.y);
     }
-    if (t1.y > t2.y){
+    if (t1.y > t2.y) {
         std::swap(t1.x, t2.x);
         std::swap(t1.y, t2.y);
     }
@@ -86,15 +96,48 @@ void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
     
 //    std::cout << t1.x << " " << abp.x << std::endl;
     
+    Vec2i bbp;
+    
     if (t1.x < abp.x) {
         side = eSideType::Left;
+        
+        for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
+            line(abp, bbp, image, white);
+//            std::cout << abp << bbp << std::endl;
+        }
+        
+        for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
+            line(abp, bbp, image, white);
+//            std::cout << abp << bbp << std::endl;
+        }
+        
     } else {
         side = eSideType::Right;
+        
+        for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
+            line(abp, bbp, image, white);
+//            std::cout << abp << bbp << std::endl;
+        }
+        
+        for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
+            abp.x = boundary_x(t0, t2, abp.y);
+            bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
+            line(abp, bbp, image, white);
+//            std::cout << abp << bbp << std::endl;
+        }
     }
     
-    line(t0, t1, image, green);
-    line(t1, t2, image, green);
-    line(t2, t0, image, red);
+    
+    
+//    line(t0, t1, image, green);
+//    line(t1, t2, image, green);
+//    line(t2, t0, image, red);
     
 //    std::cout << static_cast<int>(side) << std::endl;
 }
