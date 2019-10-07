@@ -54,6 +54,7 @@ I had to move to the exact directory(where *Makefile* is).
 missing seperator. Stop.
 `  
 I had to edit *Makefile*. It requires real tab instead of 4 white spaces. I edited it with text editor.
-
-
+<br>
+<br>
+<br>
 ### Check out the WIKI of this repository for more 'day's! <3
