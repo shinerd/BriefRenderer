@@ -58,3 +58,11 @@ I had to edit *Makefile*. It requires real tab instead of 4 white spaces. I edit
 <br>
 <br>
 ### Check out the WIKI of this repository for more 'day's! <3
+#### [Day 1 (190901)](https://github.com/shinerd/BriefRenderer/wiki/Day-1-(190901))
+#### [Day 2 (190902)](https://github.com/shinerd/BriefRenderer/wiki/Day-2-(190902))
+#### [Day 3 (190903)](https://github.com/shinerd/BriefRenderer/wiki/Day-3-(190903))
+#### [Day 4 (190907)](https://github.com/shinerd/BriefRenderer/wiki/Day-4-(190907))
+#### [Day 5 (190909)](https://github.com/shinerd/BriefRenderer/wiki/Day-5-(190909))
+#### [Day 6 (190914)](https://github.com/shinerd/BriefRenderer/wiki/Day-6-(190914))
+#### [Day 7 (190916)](https://github.com/shinerd/BriefRenderer/wiki/Day-7-(190916))
+#### [Day 8 (191018)](https://github.com/shinerd/BriefRenderer/wiki/Day-8-(191018))
