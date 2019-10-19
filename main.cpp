@@ -10,6 +10,7 @@
 #include <vector>
 #include <cmath>
 #include "tgaimage.hpp"
+#include "model.h"
 #include "geometry.h"
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
@@ -17,6 +18,8 @@ const TGAColor red   = TGAColor(255, 0,   0,   255);
 const TGAColor green = TGAColor(0,   255, 0,   255);
 const int width  = 200;
 const int height = 200;
+
+Model *model = NULL;
 
 int boundary_x(Vec2i v0, Vec2i v1, int y){
     float x;
@@ -62,7 +65,7 @@ void line(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color) {
     }
 }
 
-void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
+void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
     if (t0.y > t1.y) std::swap(t0, t1);
     if (t0.y > t2.y) std::swap(t0, t2);
     if (t1.y > t2.y) std::swap(t1, t2);
@@ -73,29 +76,38 @@ void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image) {
     for (abp.y = t0.y; abp.y <= t1.y; abp.y++) {
         abp.x = boundary_x(t0, t2, abp.y);
         bbp = Vec2i(boundary_x(t0, t1, abp.y), abp.y);
-        line(abp, bbp, image, white);
+        line(abp, bbp, image, color);
     }
         
     for (abp.y = t1.y; abp.y <= t2.y; abp.y++) {
         abp.x = boundary_x(t0, t2, abp.y);
         bbp = Vec2i(boundary_x(t1, t2, abp.y), abp.y);
-        line(abp, bbp, image, white);
+        line(abp, bbp, image, color);
     }
 }
 
 int main(int argc, char** argv) {
+    if (argc==2) {
+        model = new Model(argv[1]);
+    } else {
+        model = new Model("obj/african_head.obj");
+    }
+    
     TGAImage image(width, height, TGAImage::RGB);
     
-    Vec2i t0[3] = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)};
-    Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
-    Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
-    
-    triangle(t0[0], t0[1], t0[2], image);
-    triangle(t1[0], t1[1], t1[2], image);
-    triangle(t2[0], t2[1], t2[2], image);
-    
+    for (int i=0; i<model->nfaces(); i++) {
+        std::vector<int> face = model->face(i);
+        Vec2i screen_coords[3];
+        for (int j=0; j<3; j++) {
+            Vec3f world_coords = model->vert(face[j]);
+            screen_coords[j] = Vec2i((world_coords.x+1.)*width/2., (world_coords.y+1.)*height/2.);
+        }
+        triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(rand()%255, rand()%255, rand()%255, 255));
+    }
     
     image.flip_vertically();
     image.write_tga_file("output.tga");
+    
+    delete model;
     return 0;
 }
